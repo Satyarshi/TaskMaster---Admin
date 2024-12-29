@@ -7,7 +7,9 @@ import ChatCard from "../Chat/ChatCard";
 import TableOne from "../Tables/TableOne";
 import CardDataStats from "../CardDataStats";
 import ManagersTable from "../Tables/ManagerTable";
-
+import EmployeeTable from "../Tables/EmployeeTable";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 const MapOne = dynamic(() => import("@/components/Maps/MapOne"), {
   ssr: false,
 });
@@ -76,7 +78,7 @@ const ECommerce: React.FC = () => {
             />
           </svg>
         </CardDataStats>
-        <CardDataStats title="Total views" total="$3.456K" rate="0.43%" levelUp>
+        {/* <CardDataStats title="Total views" total="$3.456K" rate="0.43%" levelUp>
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -94,8 +96,8 @@ const ECommerce: React.FC = () => {
               fill=""
             />
           </svg>
-        </CardDataStats>
-        <CardDataStats title="Total Profit" total="$45,2K" rate="4.35%" levelUp>
+        </CardDataStats> */}
+        {/* <CardDataStats title="Total Profit" total="$45,2K" rate="4.35%" levelUp>
           <svg
             className="fill-primary dark:fill-white"
             width="20"
@@ -117,7 +119,7 @@ const ECommerce: React.FC = () => {
               fill=""
             />
           </svg>
-        </CardDataStats>
+        </CardDataStats> */}
         {/* <CardDataStats title="Total Product" total="2.450" rate="2.59%" levelUp>
           <svg
             className="fill-primary dark:fill-white"
@@ -138,8 +140,29 @@ const ECommerce: React.FC = () => {
           </svg>
         </CardDataStats> */}
       </div>
-      <ManagersTable />
+      {/* add manager and employee button */}
+      <div className="mb-6 mt-10 grid w-full grid-cols-2 gap-4 sm:flex-wrap">
+        <Link
+          href="/addmanager"
+          className="inline-flex items-center justify-center rounded-full bg-primary px-10 py-4 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+        >
+          <Plus className="mr-2" />
+          Add Manager
+        </Link>
 
+        <Link
+          href="/addemployee"
+          className="inline-flex items-center justify-center rounded-full bg-meta-3 px-10 py-4 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+        >
+          <Plus className="mr-2 " />
+          Add Employee
+        </Link>
+      </div>
+      {/* managers table */}
+      <ManagersTable />
+      {/* employees table */}
+      <EmployeeTable />
+      {/* chart */}
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
         <div className="col-span-12 xl:col-span-8">{/* <TableOne /> */}</div>
         <ChartThree />

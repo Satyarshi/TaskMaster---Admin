@@ -50,6 +50,7 @@ const menuGroups = [
         children: [
           { label: "Main", route: "/" },
           { label: "Add Manager", route: "/addmanager" },
+          { label: "Add Employee", route: "/addemployee" },
         ],
       },
       {

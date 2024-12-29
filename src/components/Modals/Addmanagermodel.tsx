@@ -2,9 +2,13 @@ import React from "react";
 
 interface AddManagerModalProps {
   setModal: (value: boolean) => void;
+  post: string;
 }
 
-const Addmanagermodal: React.FC<AddManagerModalProps> = ({ setModal }) => {
+const Addmanagermodal: React.FC<AddManagerModalProps> = ({
+  setModal,
+  post,
+}) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Overlay */}
@@ -17,13 +21,13 @@ const Addmanagermodal: React.FC<AddManagerModalProps> = ({ setModal }) => {
       <div className="relative z-50 w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-boxdark">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-black dark:text-white">
-            Confirm Manager Addition
+            Confirm {post} addition
           </h3>
         </div>
 
         <div className="mb-6">
           <p className="text-gray-600 dark:text-gray-400">
-            Are you sure you want to add this manager? This action cannot be
+            Are you sure you want to add this {post}? This action cannot be
             undone.
           </p>
         </div>

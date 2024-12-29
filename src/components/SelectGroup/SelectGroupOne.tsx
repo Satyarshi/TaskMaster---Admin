@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface Option {
   value: string;
@@ -9,30 +9,48 @@ interface Option {
 interface SelectGroupOneProps {
   options: Option[];
   labell: String;
+  defaultValue?: string;
+  onChange?: (value: string) => void;
 }
 
-const SelectGroupOne: React.FC<SelectGroupOneProps> = ({ options, labell }) => {
-  const [selectedOption, setSelectedOption] = useState<string>("");
-  const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
+const SelectGroupOne: React.FC<SelectGroupOneProps> = ({
+  options,
+  labell,
+  defaultValue,
+  onChange,
+}) => {
+  const [selectedOption, setSelectedOption] = useState<string>(
+    defaultValue || "",
+  );
+  const [isOptionSelected, setIsOptionSelected] =
+    useState<boolean>(!!defaultValue);
 
-  const changeTextColor = () => {
+  useEffect(() => {
+    if (defaultValue) {
+      setSelectedOption(defaultValue);
+      setIsOptionSelected(true);
+    }
+  }, [defaultValue]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newValue = e.target.value;
+    setSelectedOption(newValue);
     setIsOptionSelected(true);
+    if (onChange) {
+      onChange(newValue);
+    }
   };
 
   return (
     <div className="mb-4.5">
       <label className="mb-2.5 block text-black dark:text-white">
-        {" "}
-        {labell}{" "}
+        {labell}
       </label>
 
       <div className="relative z-20 bg-transparent dark:bg-form-input">
         <select
           value={selectedOption}
-          onChange={(e) => {
-            setSelectedOption(e.target.value);
-            changeTextColor();
-          }}
+          onChange={handleChange}
           className={`relative z-20 w-full appearance-none rounded border border-stroke bg-transparent px-5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ${
             isOptionSelected ? "text-black dark:text-white" : ""
           }`}

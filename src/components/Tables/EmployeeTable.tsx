@@ -3,13 +3,13 @@ import Image from "next/image";
 import { Edit, Eye, Trash2 } from "lucide-react";
 import Link from "next/link";
 
-interface MANAGER {
+interface EMPLOYEE {
   name: string;
   phoneNumber: string;
   storeId: string;
 }
 
-const managerData: MANAGER[] = [
+const employeeData: EMPLOYEE[] = [
   {
     name: "John Doe",
     phoneNumber: "+1 234 567 890",
@@ -47,15 +47,15 @@ const managerData: MANAGER[] = [
   },
 ];
 
-const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 4; // Adjust for how many items to show per page
 
-const ManagerTable = () => {
+const EmployeeTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Calculate pagination
-  const totalPages = Math.ceil(managerData.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(employeeData.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentData = managerData.slice(
+  const currentData = employeeData.slice(
     startIndex,
     startIndex + ITEMS_PER_PAGE,
   );
@@ -72,7 +72,7 @@ const ManagerTable = () => {
     <div className="mt-10 w-full rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
       <div className="mb-6 flex items-center justify-between">
         <h4 className="text-xl font-semibold text-black dark:text-white">
-          managers
+          Employees
         </h4>
         {/* Pagination Controls */}
         <div className="flex items-center gap-2">
@@ -130,7 +130,7 @@ const ManagerTable = () => {
         </div>
 
         {/* Table Body - Left alignment */}
-        {currentData.map((manager, key) => (
+        {currentData.map((employee, key) => (
           <div
             className={`grid grid-cols-4 ${
               key === currentData.length - 1
@@ -140,17 +140,17 @@ const ManagerTable = () => {
             key={key}
           >
             <div className="flex items-center p-2.5 xl:p-5">
-              <p className="text-black dark:text-white">{manager.name}</p>
+              <p className="text-black dark:text-white">{employee.name}</p>
             </div>
 
             <div className="flex items-center p-2.5 xl:p-5">
               <p className="text-black dark:text-white">
-                {manager.phoneNumber}
+                {employee.phoneNumber}
               </p>
             </div>
 
             <div className="flex items-center p-2.5 xl:p-5">
-              <p className="text-black dark:text-white">{manager.storeId}</p>
+              <p className="text-black dark:text-white">{employee.storeId}</p>
             </div>
 
             <div className="flex items-center gap-3 p-2.5 xl:p-5">
@@ -158,7 +158,7 @@ const ManagerTable = () => {
                 <Eye size={20} />
               </button>
               <Link
-                href={`/addmanager?name=${manager.name}&phone=${manager.phoneNumber}&store=${manager.storeId}`}
+                href={`/addemployee?name=${employee.name}&phone=${employee.phoneNumber}&store=${employee.storeId}`}
                 className="text-primary hover:text-black dark:hover:text-white"
                 title="Edit"
               >
@@ -178,4 +178,4 @@ const ManagerTable = () => {
   );
 };
 
-export default ManagerTable;
+export default EmployeeTable;

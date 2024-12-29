@@ -96,7 +96,7 @@ interface ChartTwoState {
   }[];
 }
 
-const ChartTwo: React.FC = () => {
+const EmployeeTasksChart1: React.FC = () => {
   const [currentPage, setCurrentPage] = React.useState(1);
   const employeesPerPage = 10;
 
@@ -201,4 +201,4 @@ const ChartTwo: React.FC = () => {
   );
 };
 
-export default ChartTwo;
+export default EmployeeTasksChart1;

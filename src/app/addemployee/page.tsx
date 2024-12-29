@@ -7,14 +7,14 @@ import { useState } from "react";
 import Addmanagermodal from "@/components/Modals/Addmanagermodel";
 import { useSearchParams } from "next/navigation";
 
-interface ExistingManagerDetails {
+interface ExistingEmployeeDetails {
   name?: string;
   email?: string;
   phone?: string;
   store?: string;
 }
 
-const AddManagerPage = () => {
+const AddEmployeePage = () => {
   const options = [
     { value: "storeid1", label: "storeid1" },
     { value: "storeid2", label: "storeid2" },
@@ -35,13 +35,13 @@ const AddManagerPage = () => {
   const [modal, setModal] = useState(false);
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Add Manager" />
+      <Breadcrumb pageName="Add Employee" />
       <div className="flex flex-col gap-9">
         {/* <!-- Contact Form --> */}
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="border-b border-stroke px-6.5 py-4 dark:border-strokedark">
             <h3 className="font-medium text-black dark:text-white">
-              Fill Manager's Details
+              Fill Employee's Details
             </h3>
           </div>
           <form action="#">
@@ -154,15 +154,15 @@ const AddManagerPage = () => {
                 defaultValue={store || undefined}
               />
 
-              <div>
+              {/* <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                  Attach Manager's Picture
+                  Attach emplo's Picture
                 </label>
                 <input
                   type="file"
                   className="mb-10 w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                 />
-              </div>
+              </div> */}
 
               <button
                 type="button"
@@ -183,4 +183,4 @@ const AddManagerPage = () => {
   );
 };
 
-export default AddManagerPage;
+export default AddEmployeePage;
