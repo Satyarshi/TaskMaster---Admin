@@ -1,13 +1,10 @@
-import { Metadata } from "next";
+"use client";
+
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import SelectGroupOne from "@/components/SelectGroup/SelectGroupOne";
-
-export const metadata: Metadata = {
-  title: "Add Manager",
-  description:
-    "This is Next.js Calender page for TailAdmin  Tailwind CSS Admin Dashboard Template",
-};
+import { useState } from "react";
+import Addmanagermodal from "@/components/Modals/Addmanagermodel";
 
 const AddManagerPage = () => {
   const options = [
@@ -15,6 +12,7 @@ const AddManagerPage = () => {
     { value: "storeid2", label: "storeid2" },
     { value: "storeid3", label: "storeid3" },
   ];
+  const [modal, setModal] = useState(false);
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Add Manager" />
@@ -76,17 +74,6 @@ const AddManagerPage = () => {
 
               <SelectGroupOne options={options} labell="Store" />
 
-              {/* <div className="mb-6">
-                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                  Message
-                </label>
-                <textarea
-                  rows={6}
-                  placeholder="Type your message"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                ></textarea>
-              </div> */}
-
               <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                   Attach Manager's Picture
@@ -97,9 +84,15 @@ const AddManagerPage = () => {
                 />
               </div>
 
-              <button className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+              <button
+                type="button"
+                className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                onClick={() => setModal(true)}
+              >
                 Add Manager
               </button>
+
+              {modal ? <Addmanagermodal setModal={setModal} /> : null}
             </div>
           </form>
         </div>
