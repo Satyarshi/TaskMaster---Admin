@@ -1,49 +1,34 @@
-import axios from "axios";
-import Cookies from "js-cookie";
+// // utils/api.ts
+// import axios from "axios";
 
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-});
+// const api = axios.create({
+//   baseURL: process.env.NEXT_PUBLIC_API_URL,
+// });
 
-// Add a request interceptor to add token to all requests
-api.interceptors.request.use((config) => {
-  const token = Cookies.get("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// api.interceptors.request.use((config) => {
+//   // Get token from cookies
+//   const token = document.cookie
+//     .split("; ")
+//     .find((row) => row.startsWith("token="))
+//     ?.split("=")[1];
 
-export const authService = {
-  login: async (email: string, password: string) => {
-    try {
-      const response = await api.post("/auth/signin", { email, password });
-      if (response.data.token) {
-        // Set cookie with token
-        Cookies.set("token", response.data.token, {
-          path: "/",
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-        });
-      }
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+//   if (token) {
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   return config;
+// });
 
-  signup: async (userData: any) => {
-    try {
-      const response = await api.post("/auth/signup", userData);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+// api.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401) {
+//       // Clear token and redirect to login
+//       document.cookie =
+//         "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+//       window.location.href = "/login";
+//     }
+//     return Promise.reject(error);
+//   },
+// );
 
-  logout: () => {
-    Cookies.remove("token", { path: "/" });
-  },
-};
-
-export default api;
+// export default api;
