@@ -14,7 +14,7 @@ interface ExistingEmployeeDetails {
   store?: string;
 }
 
-const AddEmployeePage = () => {
+const EmployeeForm = () => {
   const options = [
     { value: "storeid1", label: "storeid1" },
     { value: "storeid2", label: "storeid2" },
@@ -34,8 +34,8 @@ const AddEmployeePage = () => {
 
   const [modal, setModal] = useState(false);
   return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Add Employee" />
+    <div>
+      {/* <Breadcrumb pageName="Add Employee" /> */}
       <div className="flex flex-col gap-9">
         {/* <!-- Contact Form --> */}
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -179,8 +179,8 @@ const AddEmployeePage = () => {
           </form>
         </div>
       </div>
-    </DefaultLayout>
+    </div>
   );
 };
 
-export default AddEmployeePage;
+export default EmployeeForm;

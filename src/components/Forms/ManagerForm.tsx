@@ -7,14 +7,14 @@ import { useState } from "react";
 import Addmanagermodal from "@/components/Modals/Addmanagermodel";
 import { useSearchParams } from "next/navigation";
 
-interface ExistingEmployeeDetails {
+interface ExistingManagerDetails {
   name?: string;
   email?: string;
   phone?: string;
   store?: string;
 }
 
-const AddEmployeePage = () => {
+const ManagerForm = () => {
   const options = [
     { value: "storeid1", label: "storeid1" },
     { value: "storeid2", label: "storeid2" },
@@ -34,14 +34,13 @@ const AddEmployeePage = () => {
 
   const [modal, setModal] = useState(false);
   return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Add Employee" />
+    <div>
       <div className="flex flex-col gap-9">
         {/* <!-- Contact Form --> */}
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="border-b border-stroke px-6.5 py-4 dark:border-strokedark">
             <h3 className="font-medium text-black dark:text-white">
-              Fill Employee's Details
+              Fill Manager's Details
             </h3>
           </div>
           <form action="#">
@@ -153,10 +152,10 @@ const AddEmployeePage = () => {
                 labell="Store"
                 defaultValue={store || undefined}
               />
-
-              {/* <div>
+              {/* 
+              <div>
                 <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                  Attach emplo's Picture
+                  Attach Manager's Picture
                 </label>
                 <input
                   type="file"
@@ -169,7 +168,7 @@ const AddEmployeePage = () => {
                 className="mt-10 flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                 onClick={() => setModal(true)}
               >
-                Add Employee
+                Add Manager
               </button>
 
               {modal ? (
@@ -179,8 +178,8 @@ const AddEmployeePage = () => {
           </form>
         </div>
       </div>
-    </DefaultLayout>
+    </div>
   );
 };
 
-export default AddEmployeePage;
+export default ManagerForm;

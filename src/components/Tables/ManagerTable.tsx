@@ -1,6 +1,8 @@
+"use client";
+
 import { useState } from "react";
 import Image from "next/image";
-import { Edit, Eye, Trash2 } from "lucide-react";
+import { Edit, Eye, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 interface MANAGER {
@@ -51,11 +53,19 @@ const ITEMS_PER_PAGE = 4;
 
 const ManagerTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter data based on search query
+  const filteredData = managerData.filter((manager) =>
+    Object.values(manager).some((value) =>
+      value.toLowerCase().includes(searchQuery.toLowerCase()),
+    ),
+  );
 
   // Calculate pagination
-  const totalPages = Math.ceil(managerData.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentData = managerData.slice(
+  const currentData = filteredData.slice(
     startIndex,
     startIndex + ITEMS_PER_PAGE,
   );
@@ -69,12 +79,12 @@ const ManagerTable = () => {
   };
 
   return (
-    <div className="mt-10 w-full rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="w-full rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
+      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h4 className="text-xl font-semibold text-black dark:text-white">
-          managers
+          Managers
         </h4>
-        {/* Pagination Controls */}
+
         <div className="flex items-center gap-2">
           <button
             onClick={handlePrevious}
@@ -101,6 +111,19 @@ const ManagerTable = () => {
           >
             Next
           </button>
+        </div>
+      </div>
+
+      <div className="mb-6 w-full">
+        <div className="relative w-full">
+          <input
+            type="text"
+            placeholder="Search managers..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-sm border border-stroke bg-transparent py-2 pl-9 pr-4 outline-none focus:border-primary dark:border-strokedark dark:focus:border-primary"
+          />
+          <Search className="absolute left-3 top-2.5 h-5 w-5 text-body dark:text-bodydark" />
         </div>
       </div>
 
@@ -154,9 +177,13 @@ const ManagerTable = () => {
             </div>
 
             <div className="flex items-center gap-3 p-2.5 xl:p-5">
-              <button className="text-meta-3 hover:text-primary" title="View">
+              <Link
+                href={`/reports/manager/${manager.name}`}
+                className="text-meta-3 hover:text-primary"
+                title="View"
+              >
                 <Eye size={20} />
-              </button>
+              </Link>
               <Link
                 href={`/addmanager?name=${manager.name}&phone=${manager.phoneNumber}&store=${manager.storeId}`}
                 className="text-primary hover:text-black dark:hover:text-white"

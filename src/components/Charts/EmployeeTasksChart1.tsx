@@ -3,6 +3,8 @@
 import { ApexOptions } from "apexcharts";
 import React from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import router from "next/router";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -21,8 +23,16 @@ const options: ApexOptions = {
     zoom: {
       enabled: false,
     },
+    events: {
+      dataPointSelection: function (event, chartContext, config) {
+        const employeeName =
+          config.w.config.xaxis.categories[config.dataPointIndex];
+        if (employeeName) {
+          router.push(`/reports/employee/${employeeName.toLowerCase()}`);
+        }
+      },
+    },
   },
-
   responsive: [
     {
       breakpoint: 1536,
@@ -48,7 +58,6 @@ const options: ApexOptions = {
   dataLabels: {
     enabled: false,
   },
-
   xaxis: {
     categories: [
       "John",
@@ -72,6 +81,13 @@ const options: ApexOptions = {
       "Chris",
       "Rachel",
     ].slice(0, 10),
+    labels: {
+      style: {
+        cursor: "pointer",
+        textDecoration: "underline",
+        color: "#3C50E0",
+      },
+    },
   },
   legend: {
     position: "top",

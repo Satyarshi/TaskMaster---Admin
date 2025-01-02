@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, FormEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { authService } from "@/lib/api";
+import axios from "axios";
+import { Toaster, toast } from "react-hot-toast";
 
 const SignUp: React.FC = () => {
   const router = useRouter();
@@ -16,31 +17,6 @@ const SignUp: React.FC = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Form data:", formData);
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const response = await authService.register({
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (response.success) {
-        // router.push("/auth/signin");
-        alert("Registration successful");
-      }
-    } catch (err: any) {
-      setError(err.message || "Registration failed");
-      alert(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -48,12 +24,56 @@ const SignUp: React.FC = () => {
     });
   };
 
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    const formData = new FormData(event.currentTarget);
+    const username = formData.get("username");
+    const email = formData.get("email");
+    const password = formData.get("password");
+
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/register/`,
+        {
+          username,
+          email,
+          password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.data) {
+        toast.success("Registration successful");
+        console.log(response.data);
+        router.push("/auth/signin?message=Registration successful");
+      }
+    } catch (error: any) {
+      if (error.response) {
+        setError(error.response.data.message || "Registration failed");
+      } else if (error.request) {
+        setError("Network error occurred");
+      } else {
+        setError("An unexpected error occurred");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <>
-      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="flex flex-wrap items-center">
-          <div className="hidden w-full xl:block xl:w-1/2">
-            <div className="px-26 py-17.5 text-center">
+    <div className="flex h-full">
+      <Toaster position="top-right" />
+      <div className="w-full rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="flex h-full flex-wrap items-center">
+          <div className="hidden h-full w-full xl:block xl:w-1/2">
+            <div className="flex h-full flex-col justify-center  px-26 py-17.5 text-center">
               <Link className="mb-5.5 inline-block" href="/">
                 <Image
                   className="hidden dark:block"
@@ -70,9 +90,13 @@ const SignUp: React.FC = () => {
                   height={32}
                 />
               </Link>
-              <p className="2xl:px-20">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit
-                suspendisse.
+              <h2 className="mb-9 text-2xl font-bold text-white">
+                Manage Your Tasks Efficiently
+              </h2>
+              <p className="text-white 2xl:px-20">
+                Join TaskMaster to streamline your workflow, collaborate with
+                your team, and boost productivity with our powerful task
+                management tools.
               </p>
               <span className="mt-15 inline-block">
                 <Image
@@ -89,7 +113,7 @@ const SignUp: React.FC = () => {
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <span className="mb-1.5 block font-medium">Start for free</span>
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-                Sign Up to TailAdmin
+                Sign Up to TaskMaster
               </h2>
 
               {error && <div className="mb-4 text-red-500">{error}</div>}
@@ -225,7 +249,7 @@ const SignUp: React.FC = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

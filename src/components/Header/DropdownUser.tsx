@@ -3,9 +3,21 @@ import Link from "next/link";
 import Image from "next/image";
 import ClickOutside from "@/components/ClickOutside";
 import { KeyRound, LogOut, UserRound } from "lucide-react";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 const DropdownUser = () => {
+  const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const handleLogout = () => {
+    Cookies.remove("token");
+    localStorage.removeItem("color-theme");
+    localStorage.removeItem("selectedMenu");
+    router.push("/auth/signin");
+
+    router.refresh();
+  };
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -71,7 +83,10 @@ const DropdownUser = () => {
             <KeyRound />
             Reset Password
           </button>
-          <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+          >
             <LogOut />
             Log Out
           </button>

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import Image from "next/image";
 import { Edit, Eye, Trash2 } from "lucide-react";
@@ -11,7 +13,7 @@ interface EMPLOYEE {
 
 const employeeData: EMPLOYEE[] = [
   {
-    name: "John Doe",
+    name: "John",
     phoneNumber: "+1 234 567 890",
     storeId: "STR12345",
   },
@@ -154,9 +156,13 @@ const EmployeeTable = () => {
             </div>
 
             <div className="flex items-center gap-3 p-2.5 xl:p-5">
-              <button className="text-meta-3 hover:text-primary" title="View">
+              <Link
+                href={`/reports/employee/${employee.name}`}
+                className="text-meta-3 hover:text-primary"
+                title="View"
+              >
                 <Eye size={20} />
-              </button>
+              </Link>
               <Link
                 href={`/addemployee?name=${employee.name}&phone=${employee.phoneNumber}&store=${employee.storeId}`}
                 className="text-primary hover:text-black dark:hover:text-white"
