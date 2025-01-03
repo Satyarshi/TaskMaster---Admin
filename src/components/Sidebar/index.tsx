@@ -83,7 +83,7 @@ const menuGroups = [
           </svg>
         ),
         label: "Manager",
-        route: "/manager",
+        route: "/manager/all",
         // children: [
         //   { label: "Main", route: "/" },
         //   { label: "Add Manager", route: "/addmanager" },
@@ -120,7 +120,7 @@ const menuGroups = [
           </svg>
         ),
         label: "Employee",
-        route: "/employee",
+        route: "/employee/all",
         // children: [
         //   { label: "Main", route: "/" },
         //   { label: "Add Manager", route: "/addmanager" },

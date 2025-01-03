@@ -178,7 +178,7 @@ const ManagerTable = () => {
 
             <div className="flex items-center gap-3 p-2.5 xl:p-5">
               <Link
-                href={`/reports/manager/${manager.name}`}
+                href={`/manager/reports/${manager.name}`}
                 className="text-meta-3 hover:text-primary"
                 title="View"
               >
