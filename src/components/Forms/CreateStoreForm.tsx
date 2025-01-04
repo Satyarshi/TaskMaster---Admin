@@ -93,12 +93,11 @@ const CreateStoreForm = () => {
     }
 
     try {
-      const response = await storeService.createStore(store);
-      console.log(response);
+      await storeService.createStore(store);
       toast.success("Store created successfully!");
       setTimeout(() => {
         router.push("/store/all");
-      }, 2000);
+      }, 1000);
     } catch (err) {
       console.error("Failed to create store:", err);
       toast.error("Failed to create store. Please try again.");

@@ -1,185 +1,316 @@
 "use client";
 
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import SelectGroupOne from "@/components/SelectGroup/SelectGroupOne";
-import { useState } from "react";
-import Addmanagermodal from "@/components/Modals/Addmanagermodel";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import employeeService from "@/lib/api/employee";
+import { toast, Toaster } from "react-hot-toast";
 
-interface ExistingEmployeeDetails {
-  name?: string;
-  email?: string;
-  phone?: string;
-  store?: string;
+interface Employee {
+  _id: string;
+  user: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
+  dateOfBirth: string;
+  address: string;
+  storeId: string;
+}
+
+interface EmployeeFormData {
+  user: {
+    email: string;
+    phone: string;
+    firstName: string;
+    lastName: string;
+    auth: {
+      type: "password";
+      data: {
+        password: string;
+      };
+    };
+  };
+  data: {
+    dateOfBirth: string;
+    address: string;
+    // storeId: string;
+  };
 }
 
 const EmployeeForm = () => {
-  const options = [
-    { value: "storeid1", label: "storeid1" },
-    { value: "storeid2", label: "storeid2" },
-    { value: "storeid3", label: "storeid3" },
-  ];
-
   const searchParams = useSearchParams();
-  const name = searchParams.get("name");
-  const email = searchParams.get("email");
-  const phone = searchParams.get("phone");
-  const store = searchParams.get("store");
+  const id = searchParams.get("id");
+  const router = useRouter();
 
-  console.log(name, email, phone, store);
+  const [isEdit, setIsEdit] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [password, setPassword] = useState("12345678Aa#"); // Default password
+  const [employee, setEmployee] = useState<Employee>({
+    _id: "",
+    user: {
+      _id: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+    },
+    dateOfBirth: "",
+    address: "",
+    storeId: "",
+  });
 
-  const firstName = name?.split(" ")[0];
-  const lastName = name?.split(" ")[1];
+  useEffect(() => {
+    if (id) {
+      setIsEdit(true);
+      fetchEmployeeData();
+    }
+  }, [id]);
 
-  const [modal, setModal] = useState(false);
+  const fetchEmployeeData = async () => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      const data = await employeeService.getEmployee(id);
+      console.log(data);
+      setEmployee(data);
+    } catch (err) {
+      console.error("Failed to fetch employee:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (
+      !employee.user.firstName ||
+      !employee.user.lastName ||
+      !employee.user.email ||
+      !employee.user.phone ||
+      !employee.dateOfBirth ||
+      !employee.address ||
+      !employee.storeId
+    ) {
+      toast.error("All fields are required!");
+      return;
+    }
+
+    const formattedData: EmployeeFormData = {
+      user: {
+        email: employee.user.email,
+        phone: employee.user.phone,
+        firstName: employee.user.firstName,
+        lastName: employee.user.lastName,
+        auth: {
+          type: "password",
+          data: {
+            password: password,
+          },
+        },
+      },
+      data: {
+        dateOfBirth: employee.dateOfBirth,
+        address: employee.address,
+        // storeId: employee.storeId,
+      },
+    };
+
+    try {
+      if (isEdit) {
+        if (!id) return;
+        const response = await employeeService.updateEmployee(
+          id,
+          formattedData,
+        );
+        console.log(response);
+        toast.success("Employee updated successfully!");
+      } else {
+        console.log(formattedData);
+        const response = await employeeService.createEmployee(formattedData);
+        console.log(response);
+        if (response.error) {
+          toast.error(response.message);
+        } else {
+          toast.success("Employee added successfully!");
+        }
+      }
+      // setTimeout(() => {
+      //   router.push("/employee/all");
+      // }, 1000);
+    } catch (err) {
+      console.error("Failed to save employee:", err);
+      toast.error("Failed to save employee. Please try again.");
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (!employee) return;
+
+    if (name.startsWith("user.")) {
+      const userField = name.split(".")[1];
+      setEmployee({
+        ...employee,
+        user: {
+          ...employee.user,
+          [userField]: value,
+        },
+      });
+    } else if (name === "password") {
+      setPassword(value);
+    } else {
+      setEmployee({
+        ...employee,
+        [name]: value,
+      });
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+
   return (
-    <div>
-      {/* <Breadcrumb pageName="Add Employee" /> */}
-      <div className="flex flex-col gap-9">
-        {/* <!-- Contact Form --> */}
-        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-          <div className="border-b border-stroke px-6.5 py-4 dark:border-strokedark">
-            <h3 className="font-medium text-black dark:text-white">
-              Fill Employee's Details
-            </h3>
-          </div>
-          <form action="#">
-            <div className="p-6.5">
-              <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
-                {firstName ? (
-                  <div className="w-full xl:w-1/2">
-                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      First name
-                    </label>
-                    <input
-                      type="text"
-                      value={firstName}
-                      placeholder="Enter your first name"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full xl:w-1/2">
-                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      First name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter your first name"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
-                  </div>
-                )}
-
-                {lastName ? (
-                  <div className="w-full xl:w-1/2">
-                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Last name
-                    </label>
-                    <input
-                      type="text"
-                      value={lastName}
-                      placeholder="Enter your last name"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full xl:w-1/2">
-                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Last name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter your last name"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {email ? (
-                <div className="mb-4.5">
-                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                    Email <span className="text-meta-1">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    placeholder="Enter your email address"
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
-                </div>
-              ) : (
-                <div className="mb-4.5">
-                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                    Email <span className="text-meta-1">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="Enter your email address"
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
-                </div>
-              )}
-
-              {phone ? (
-                <div className="mb-4.5">
-                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                    Phone no.
-                  </label>
-                  <input
-                    type="number"
-                    value={Number(phone.replace(/\s/g, ""))}
-                    placeholder="Enter phone no."
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
-                </div>
-              ) : (
-                <div className="mb-4.5">
-                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                    Phone no.
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="Enter phone no."
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
-                </div>
-              )}
-
-              <SelectGroupOne
-                options={options}
-                labell="Store"
-                defaultValue={store || undefined}
-              />
-
-              {/* <div>
-                <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                  Attach emplo's Picture
-                </label>
-                <input
-                  type="file"
-                  className="mb-10 w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
-                />
-              </div> */}
-
-              <button
-                type="button"
-                className="mt-10 flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
-                onClick={() => setModal(true)}
-              >
-                Add Employee
-              </button>
-
-              {modal ? (
-                <Addmanagermodal setModal={setModal} post="manager" />
-              ) : null}
+    <>
+      <Toaster position="top-right" />
+      <div>
+        <div className="flex flex-col gap-9">
+          <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+            <div className="border-b border-stroke px-6.5 py-4 dark:border-strokedark">
+              <h3 className="font-medium text-black dark:text-white">
+                Fill Employee's Details
+              </h3>
             </div>
-          </form>
+            <form onSubmit={handleSubmit}>
+              <div className="p-6.5">
+                <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
+                  <div className="w-full xl:w-1/2">
+                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                      First name
+                    </label>
+                    <input
+                      type="text"
+                      name="user.firstName"
+                      value={employee.user.firstName}
+                      onChange={handleChange}
+                      placeholder="Enter first name"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    />
+                  </div>
+
+                  <div className="w-full xl:w-1/2">
+                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                      Last name
+                    </label>
+                    <input
+                      type="text"
+                      name="user.lastName"
+                      value={employee.user.lastName}
+                      onChange={handleChange}
+                      placeholder="Enter last name"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-4.5">
+                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                    Email <span className="text-meta-1">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="user.email"
+                    value={employee.user.email}
+                    onChange={handleChange}
+                    placeholder="Enter email address"
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                </div>
+
+                <div className="mb-4.5">
+                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                    Phone no.
+                  </label>
+                  <input
+                    type="text"
+                    name="user.phone"
+                    value={employee.user.phone}
+                    onChange={handleChange}
+                    placeholder="Enter phone no."
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                </div>
+
+                {!isEdit && (
+                  <div className="mb-4.5">
+                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      value={password}
+                      onChange={handleChange}
+                      placeholder="Enter password"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    />
+                  </div>
+                )}
+
+                <div className="mb-4.5">
+                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={employee.address}
+                    onChange={handleChange}
+                    placeholder="Enter address"
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                </div>
+
+                <div className="mb-4.5">
+                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                    Store ID
+                  </label>
+                  <input
+                    type="text"
+                    name="storeId"
+                    value={employee.storeId}
+                    onChange={handleChange}
+                    placeholder="Enter store ID"
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                </div>
+
+                <div className="mb-4.5">
+                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                    Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    value={employee.dateOfBirth?.split("T")[0] || ""}
+                    onChange={handleChange}
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                >
+                  {isEdit ? "Update Employee" : "Add Employee"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

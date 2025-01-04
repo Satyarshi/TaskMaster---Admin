@@ -1,68 +1,77 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import { Edit, Eye, Trash2, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Edit, Eye, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
+import employeeService from "@/lib/api/employee";
+import DeleteModal from "@/components/Modals/DeleteModal";
 
-interface EMPLOYEE {
-  name: string;
-  phoneNumber: string;
-  storeId: string;
+interface User {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
 }
 
-const employeeData: EMPLOYEE[] = [
-  {
-    name: "John",
-    phoneNumber: "+1 234 567 890",
-    storeId: "STR12345",
-  },
-  {
-    name: "Jane Smith",
-    phoneNumber: "+1 987 654 321",
-    storeId: "STR67890",
-  },
-  {
-    name: "Michael Johnson",
-    phoneNumber: "+1 555 123 4567",
-    storeId: "STR45678",
-  },
-  {
-    name: "Sarah Williams",
-    phoneNumber: "+1 444 789 0123",
-    storeId: "STR34567",
-  },
-  {
-    name: "Robert Brown",
-    phoneNumber: "+1 666 234 5678",
-    storeId: "STR23456",
-  },
-  {
-    name: "Emily Davis",
-    phoneNumber: "+1 777 345 6789",
-    storeId: "STR78901",
-  },
-  {
-    name: "David Wilson",
-    phoneNumber: "+1 888 456 7890",
-    storeId: "STR89012",
-  },
-];
+interface Employee {
+  _id: string;
+  user: User;
+  address: string;
+  dateOfBirth: string;
+  // storeId: string;
+}
 
-const ITEMS_PER_PAGE = 4; // Adjust for how many items to show per page
+const ITEMS_PER_PAGE = 4;
 
 const EmployeeTable = () => {
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [selectedId, setSelectedId] = useState<string>("");
 
-  // Add filtering logic
-  const filteredData = employeeData.filter((employee) =>
-    Object.values(employee).some((value) =>
-      value.toLowerCase().includes(searchQuery.toLowerCase()),
-    ),
-  );
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
 
-  // Update pagination to use filteredData instead of employeeData
+  const fetchEmployees = async () => {
+    try {
+      setLoading(true);
+      const data = await employeeService.getAllEmployees();
+      setEmployees(data);
+    } catch (err) {
+      setError("Failed to fetch employees");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await employeeService.deleteEmployee(id);
+      await fetchEmployees();
+      setDeleteModal(false);
+    } catch (err) {
+      console.error("Failed to delete employee:", err);
+    }
+  };
+
+  const filteredData = employees.filter((employee) => {
+    const searchString = searchQuery.toLowerCase();
+    const userData = employee.user;
+
+    return (
+      userData.firstName.toLowerCase().includes(searchString) ||
+      userData.lastName.toLowerCase().includes(searchString) ||
+      userData.email.toLowerCase().includes(searchString) ||
+      userData.phone.toLowerCase().includes(searchString)
+    );
+  });
+
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const currentData = filteredData.slice(
@@ -70,16 +79,11 @@ const EmployeeTable = () => {
     startIndex + ITEMS_PER_PAGE,
   );
 
-  const handlePrevious = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const handleNext = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="mt-10 w-full rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
+    <div className="w-full rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
       <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h4 className="text-xl font-semibold text-black dark:text-white">
           Employees
@@ -87,7 +91,7 @@ const EmployeeTable = () => {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={handlePrevious}
+            onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
             disabled={currentPage === 1}
             className={`rounded bg-gray-200 px-4 py-2 dark:bg-gray-600 ${
               currentPage === 1
@@ -101,7 +105,9 @@ const EmployeeTable = () => {
             Page {currentPage} of {totalPages}
           </span>
           <button
-            onClick={handleNext}
+            onClick={() =>
+              setCurrentPage(Math.min(currentPage + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
             className={`rounded bg-gray-200 px-4 py-2 dark:bg-gray-600 ${
               currentPage === totalPages
@@ -128,7 +134,6 @@ const EmployeeTable = () => {
       </div>
 
       <div className="flex flex-col">
-        {/* Table Header - Left alignment */}
         <div className="grid grid-cols-4 rounded-sm bg-gray-2 dark:bg-meta-4">
           <div className="p-2.5 xl:p-5">
             <h5 className="text-left text-sm font-medium uppercase xsm:text-base">
@@ -142,7 +147,7 @@ const EmployeeTable = () => {
           </div>
           <div className="p-2.5 xl:p-5">
             <h5 className="text-left text-sm font-medium uppercase xsm:text-base">
-              Store ID
+              Email
             </h5>
           </div>
           <div className="p-2.5 xl:p-5">
@@ -152,46 +157,49 @@ const EmployeeTable = () => {
           </div>
         </div>
 
-        {/* Table Body - Left alignment */}
-        {currentData.map((employee, key) => (
+        {currentData.map((employee) => (
           <div
-            className={`grid grid-cols-4 ${
-              key === currentData.length - 1
-                ? ""
-                : "border-b border-stroke dark:border-strokedark"
-            }`}
-            key={key}
+            className="grid grid-cols-4 border-b border-stroke dark:border-strokedark"
+            key={employee._id}
           >
             <div className="flex items-center p-2.5 xl:p-5">
-              <p className="text-black dark:text-white">{employee.name}</p>
-            </div>
-
-            <div className="flex items-center p-2.5 xl:p-5">
               <p className="text-black dark:text-white">
-                {employee.phoneNumber}
+                {`${employee.user.firstName} ${employee.user.lastName}`}
               </p>
             </div>
 
             <div className="flex items-center p-2.5 xl:p-5">
-              <p className="text-black dark:text-white">{employee.storeId}</p>
+              <p className="text-black dark:text-white">
+                {employee.user.phone}
+              </p>
+            </div>
+
+            <div className="flex items-center p-2.5 xl:p-5">
+              <p className="text-black dark:text-white">
+                {employee.user.email}
+              </p>
             </div>
 
             <div className="flex items-center gap-3 p-2.5 xl:p-5">
               <Link
-                href={`/employee/reports/${employee.name}`}
+                href={`/employee/reports/${employee._id}`}
                 className="text-meta-3 hover:text-primary"
                 title="View"
               >
                 <Eye size={20} />
               </Link>
               <Link
-                href={`/addemployee?name=${employee.name}&phone=${employee.phoneNumber}&store=${employee.storeId}`}
+                href={`/employee/add/?id=${employee._id}`}
                 className="text-primary hover:text-black dark:hover:text-white"
                 title="Edit"
               >
                 <Edit size={20} />
               </Link>
               <button
+                onClick={() => {
+                  setSelectedId(employee._id);
+                  setDeleteModal(true);
+                }}
                 className="text-meta-5 hover:text-black dark:hover:text-white"
                 title="Delete"
               >
@@ -201,6 +209,14 @@ const EmployeeTable = () => {
           </div>
         ))}
       </div>
+
+      {deleteModal && (
+        <DeleteModal
+          setModal={setDeleteModal}
+          onDelete={() => handleDelete(selectedId)}
+          itemType="employee"
+        />
+      )}
     </div>
   );
 };
