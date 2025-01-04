@@ -1,15 +1,16 @@
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import TabLayout from "@/components/Layouts/TabLayout";
 import tabs from "../../tabs";
-
+import BioData from "@/components/Reports/employee/BioData";
+import TaskReport from "@/components/Reports/employee/tasktable";
 const page = ({ params }: { params: { id: string } }) => {
   return (
     <div>
       <DefaultLayout>
         <TabLayout tabs={tabs}>
-          <h1>Reports</h1>
-          <p>This is where you can view reports.</p>
-          <p>employee ID: {params.id}</p>
+          <BioData employeeId={params.id} />
+          <br />
+          <TaskReport employeeId={params.id} />
         </TabLayout>
       </DefaultLayout>
     </div>

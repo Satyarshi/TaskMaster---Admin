@@ -14,6 +14,27 @@ interface Manager {
   hireDate?: string;
 }
 
+// manager data schema for form
+interface ManagerFormData {
+  user: {
+    email: string;
+    phone: string;
+    firstName: string;
+    lastName: string;
+    // password: string;
+    auth: {
+      type: string;
+      data: {
+        password: string;
+      };
+    };
+  };
+  data: {
+    dateOfBirth: string;
+    address: string;
+  };
+}
+
 const managerService = {
   getAllManagers: async () => {
     const response = await api.get("/manager/crud");
@@ -25,12 +46,12 @@ const managerService = {
     return response.data;
   },
 
-  createManager: async (managerData: Manager) => {
-    const response = await api.post("/manager/crud", managerData);
+  createManager: async (managerData: ManagerFormData) => {
+    const response = await api.post("/manager/register", managerData);
     return response.data;
   },
 
-  updateManager: async (id: string, managerData: Manager) => {
+  updateManager: async (id: string, managerData: ManagerFormData) => {
     const response = await api.put(`/manager/crud/${id}`, managerData);
     return response.data;
   },
@@ -42,3 +63,4 @@ const managerService = {
 };
 
 export default managerService;
+// export type { Manager };
