@@ -1,20 +1,19 @@
-import EmployeeForm from "@/components/Forms/EmployeeForm";
+import ManagerForm from "@/components/Forms/ManagerForm";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import TabLayout from "@/components/Layouts/TabLayout";
 import tabs from "../tabs";
 
-const AddEmployeePage = () => {
+const StoreReportsPage = () => {
   return (
     <div>
       <DefaultLayout>
         <TabLayout tabs={tabs}>
-          {/* <h1>Add Manager Page</h1>
-          <p>This is where you can add a new manager.</p> */}
-          <EmployeeForm />
+          <h1>Store Reports Page</h1>
+          <p>This is where you can view reports.</p>
         </TabLayout>
       </DefaultLayout>
     </div>
   );
 };
 
-export default AddEmployeePage;
+export default StoreReportsPage;

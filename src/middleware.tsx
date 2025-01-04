@@ -58,5 +58,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/addmanager", "/addemployee", "/auth/signin", "/auth/signup"],
+  // matcher: ["/", "/addmanager", "/addemployee", "/auth/signin", "/auth/signup"],
+  matcher: [],
 };

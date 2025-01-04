@@ -1,12 +1,7 @@
 import ManagerForm from "@/components/Forms/ManagerForm";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import TabLayout from "@/components/Layouts/TabLayout";
-
-const tabs = [
-  { label: "All Managers", route: "/manager/all" },
-  { label: "Add Manager", route: "/manager/add" },
-  { label: "Reports", route: "/manager/reports" },
-];
+import tabs from "../tabs";
 
 const ReportsPage = () => {
   return (

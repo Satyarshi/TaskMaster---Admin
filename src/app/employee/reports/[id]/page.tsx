@@ -1,11 +1,6 @@
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import TabLayout from "@/components/Layouts/TabLayout";
-
-const tabs = [
-  { label: "All Employees", route: "/employee/all" },
-  { label: "Add Employee", route: "/employee/add" },
-  { label: "Reports", route: "/employee/reports" },
-];
+import tabs from "../../tabs";
 
 const page = ({ params }: { params: { id: string } }) => {
   return (
