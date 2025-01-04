@@ -1,14 +1,14 @@
 export interface User {
   _id: string;
-  roles: string[];
-  permissions: string[];
+  roles?: string[];
+  permissions?: string[];
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
-  isVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
+  isVerified?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Manager {
@@ -16,7 +16,7 @@ export interface Manager {
   user: User;
   dateOfBirth: string;
   address: string;
-  hireDate: string;
+  hireDate?: string;
 }
 
 export interface Employee {

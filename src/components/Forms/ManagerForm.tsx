@@ -8,12 +8,23 @@ import { useRouter } from "next/navigation";
 
 const ManagerForm = () => {
   const searchParams = useSearchParams();
-  const id = searchParams.get("id") || "";
+  const id = searchParams.get("id");
   const router = useRouter();
 
   const [isEdit, setIsEdit] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [manager, setManager] = useState<Manager | null>(null);
+  const [manager, setManager] = useState<Manager>({
+    _id: "",
+    user: {
+      _id: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+    },
+    dateOfBirth: "",
+    address: "",
+  });
 
   useEffect(() => {
     if (id) {
@@ -41,6 +52,7 @@ const ManagerForm = () => {
     if (!manager) return;
 
     if (isEdit) {
+      if (!id) return;
       const response = await managerService.updateManager(id, manager);
       console.log(response);
     } else {
