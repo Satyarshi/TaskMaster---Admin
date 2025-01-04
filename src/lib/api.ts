@@ -1,34 +1,39 @@
-// // utils/api.ts
-// import axios from "axios";
+import axios from "axios";
+import { getCookie } from "cookies-next";
 
-// const api = axios.create({
-//   baseURL: process.env.NEXT_PUBLIC_API_URL,
-// });
+const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
-// api.interceptors.request.use((config) => {
-//   // Get token from cookies
-//   const token = document.cookie
-//     .split("; ")
-//     .find((row) => row.startsWith("token="))
-//     ?.split("=")[1];
+const api = axios.create({
+  baseURL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
-//   return config;
-// });
+// Request interceptor to add auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = getCookie("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
 
-// api.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response?.status === 401) {
-//       // Clear token and redirect to login
-//       document.cookie =
-//         "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-//       window.location.href = "/login";
-//     }
-//     return Promise.reject(error);
-//   },
-// );
+// Response interceptor to handle errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Handle unauthorized access
+      // You might want to redirect to login or refresh token
+    }
+    return Promise.reject(error);
+  },
+);
 
-// export default api;
+export default api;

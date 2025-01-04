@@ -1,66 +1,65 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { Edit, Eye, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
+import managerService from "@/lib/api/manager";
+import { User, Manager } from "@/types/UserTypes";
+import DeleteModal from "@/components/Modals/DeleteModal";
 
-interface MANAGER {
-  name: string;
-  phoneNumber: string;
-  storeId: string;
-}
-
-const managerData: MANAGER[] = [
-  {
-    name: "John Doe",
-    phoneNumber: "+1 234 567 890",
-    storeId: "STR12345",
-  },
-  {
-    name: "Jane Smith",
-    phoneNumber: "+1 987 654 321",
-    storeId: "STR67890",
-  },
-  {
-    name: "Michael Johnson",
-    phoneNumber: "+1 555 123 4567",
-    storeId: "STR45678",
-  },
-  {
-    name: "Sarah Williams",
-    phoneNumber: "+1 444 789 0123",
-    storeId: "STR34567",
-  },
-  {
-    name: "Robert Brown",
-    phoneNumber: "+1 666 234 5678",
-    storeId: "STR23456",
-  },
-  {
-    name: "Emily Davis",
-    phoneNumber: "+1 777 345 6789",
-    storeId: "STR78901",
-  },
-  {
-    name: "David Wilson",
-    phoneNumber: "+1 888 456 7890",
-    storeId: "STR89012",
-  },
-];
-
-const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 10;
 
 const ManagerTable = () => {
+  const [managers, setManagers] = useState<Manager[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteModal, setDeleteModal] = useState(false);
 
-  // Filter data based on search query
-  const filteredData = managerData.filter((manager) =>
-    Object.values(manager).some((value) =>
-      value.toLowerCase().includes(searchQuery.toLowerCase()),
-    ),
-  );
+  useEffect(() => {
+    fetchManagers();
+  }, []);
+
+  const fetchManagers = async () => {
+    try {
+      setLoading(true);
+      const data = await managerService.getAllManagers();
+      setManagers(data);
+      console.log(data);
+    } catch (err) {
+      setError("Failed to fetch managers");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await managerService.deleteManager(id);
+      await fetchManagers(); // Refresh the list
+    } catch (err) {
+      console.error("Failed to delete manager:", err);
+    }
+  };
+
+  // Updated filter function to search through nested user object
+  const filteredData = managers.filter((manager) => {
+    const searchString = searchQuery.toLowerCase();
+    const userData = manager.user;
+
+    return (
+      // Search in user data
+      userData.firstName.toLowerCase().includes(searchString) ||
+      userData.lastName.toLowerCase().includes(searchString) ||
+      userData.email.toLowerCase().includes(searchString) ||
+      userData.phone.toLowerCase().includes(searchString) ||
+      // Search in manager data
+      manager.address.toLowerCase().includes(searchString) ||
+      manager.dateOfBirth.toLowerCase().includes(searchString)
+    );
+  });
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
@@ -70,13 +69,8 @@ const ManagerTable = () => {
     startIndex + ITEMS_PER_PAGE,
   );
 
-  const handlePrevious = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const handleNext = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="w-full rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
@@ -87,7 +81,7 @@ const ManagerTable = () => {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={handlePrevious}
+            onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
             disabled={currentPage === 1}
             className={`rounded bg-gray-200 px-4 py-2 dark:bg-gray-600 ${
               currentPage === 1
@@ -101,7 +95,9 @@ const ManagerTable = () => {
             Page {currentPage} of {totalPages}
           </span>
           <button
-            onClick={handleNext}
+            onClick={() =>
+              setCurrentPage(Math.min(currentPage + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
             className={`rounded bg-gray-200 px-4 py-2 dark:bg-gray-600 ${
               currentPage === totalPages
@@ -128,7 +124,7 @@ const ManagerTable = () => {
       </div>
 
       <div className="flex flex-col">
-        {/* Table Header - Left alignment */}
+        {/* Table Header */}
         <div className="grid grid-cols-4 rounded-sm bg-gray-2 dark:bg-meta-4">
           <div className="p-2.5 xl:p-5">
             <h5 className="text-left text-sm font-medium uppercase xsm:text-base">
@@ -142,7 +138,7 @@ const ManagerTable = () => {
           </div>
           <div className="p-2.5 xl:p-5">
             <h5 className="text-left text-sm font-medium uppercase xsm:text-base">
-              Store ID
+              Email
             </h5>
           </div>
           <div className="p-2.5 xl:p-5">
@@ -152,7 +148,7 @@ const ManagerTable = () => {
           </div>
         </div>
 
-        {/* Table Body - Left alignment */}
+        {/* Table Body */}
         {currentData.map((manager, key) => (
           <div
             className={`grid grid-cols-4 ${
@@ -160,43 +156,51 @@ const ManagerTable = () => {
                 ? ""
                 : "border-b border-stroke dark:border-strokedark"
             }`}
-            key={key}
+            key={manager._id}
           >
             <div className="flex items-center p-2.5 xl:p-5">
-              <p className="text-black dark:text-white">{manager.name}</p>
-            </div>
-
-            <div className="flex items-center p-2.5 xl:p-5">
               <p className="text-black dark:text-white">
-                {manager.phoneNumber}
+                {`${manager.user.firstName} ${manager.user.lastName}`}
               </p>
             </div>
 
             <div className="flex items-center p-2.5 xl:p-5">
-              <p className="text-black dark:text-white">{manager.storeId}</p>
+              <p className="text-black dark:text-white">{manager.user.phone}</p>
+            </div>
+
+            <div className="flex items-center p-2.5 xl:p-5">
+              <p className="text-black dark:text-white">{manager.user.email}</p>
             </div>
 
             <div className="flex items-center gap-3 p-2.5 xl:p-5">
               <Link
-                href={`/manager/reports/${manager.name}`}
+                href={`/manager/reports/${manager._id}`}
                 className="text-meta-3 hover:text-primary"
                 title="View"
               >
                 <Eye size={20} />
               </Link>
               <Link
-                href={`/addmanager?name=${manager.name}&phone=${manager.phoneNumber}&store=${manager.storeId}`}
+                href={`/manager/add/?id=${manager._id}`}
                 className="text-primary hover:text-black dark:hover:text-white"
                 title="Edit"
               >
                 <Edit size={20} />
               </Link>
               <button
+                onClick={() => setDeleteModal(true)}
                 className="text-meta-5 hover:text-black dark:hover:text-white"
                 title="Delete"
               >
                 <Trash2 size={20} />
               </button>
+              {deleteModal && (
+                <DeleteModal
+                  setModal={setDeleteModal}
+                  onDelete={() => handleDelete(manager._id)}
+                  itemType="manager"
+                />
+              )}
             </div>
           </div>
         ))}

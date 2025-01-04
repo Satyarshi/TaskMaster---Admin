@@ -7,7 +7,7 @@ const StoreReportsPage = ({ params }: { params: { id: string } }) => {
     <div>
       <DefaultLayout>
         <TabLayout tabs={tabs}>
-          <h1>Reports</h1>
+          <h1>Store Reports</h1>
           <p>This is where you can view reports.</p>
           <p>store ID: {params.id}</p>
         </TabLayout>
