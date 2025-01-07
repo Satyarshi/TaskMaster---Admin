@@ -35,6 +35,18 @@ interface ManagerFormData {
   };
 }
 
+interface UpdateManagerFormData {
+  address: string;
+  dateOfBirth: string;
+  newuser: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    password: string;
+  };
+}
+
 const managerService = {
   getAllManagers: async () => {
     const response = await api.get("/manager/crud");
@@ -51,7 +63,7 @@ const managerService = {
     return response.data;
   },
 
-  updateManager: async (id: string, managerData: ManagerFormData) => {
+  updateManager: async (id: string, managerData: UpdateManagerFormData) => {
     const response = await api.put(`/manager/crud/${id}`, managerData);
     return response.data;
   },

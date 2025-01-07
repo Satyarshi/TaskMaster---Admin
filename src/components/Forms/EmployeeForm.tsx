@@ -39,6 +39,17 @@ interface EmployeeFormData {
   };
 }
 
+interface UpdateEmployeeData {
+  address: string;
+  dateOfBirth: string;
+  newuser: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
+}
+
 const EmployeeForm = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -60,6 +71,16 @@ const EmployeeForm = () => {
     address: "",
     storeId: "",
   });
+  const [updateFormData, setUpdateFormData] = useState<UpdateEmployeeData>({
+    address: "",
+    dateOfBirth: "",
+    newuser: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+    },
+  });
 
   useEffect(() => {
     if (id) {
@@ -75,6 +96,16 @@ const EmployeeForm = () => {
       const data = await employeeService.getEmployee(id);
       console.log(data);
       setEmployee(data);
+      setUpdateFormData({
+        address: data.address,
+        dateOfBirth: data.dateOfBirth,
+        newuser: {
+          firstName: data.user.firstName,
+          lastName: data.user.lastName,
+          email: data.user.email,
+          phone: data.user.phone,
+        },
+      });
     } catch (err) {
       console.error("Failed to fetch employee:", err);
     } finally {
@@ -91,8 +122,8 @@ const EmployeeForm = () => {
       !employee.user.email ||
       !employee.user.phone ||
       !employee.dateOfBirth ||
-      !employee.address ||
-      !employee.storeId
+      !employee.address
+      // !employee.storeId
     ) {
       toast.error("All fields are required!");
       return;
@@ -117,13 +148,21 @@ const EmployeeForm = () => {
         // storeId: employee.storeId,
       },
     };
+    updateFormData.newuser.email = employee.user.email;
+    updateFormData.newuser.phone = employee.user.phone;
+    updateFormData.newuser.firstName = employee.user.firstName;
+    updateFormData.newuser.lastName = employee.user.lastName;
+    updateFormData.dateOfBirth = employee.dateOfBirth;
+    updateFormData.address = employee.address;
+
+    console.log(updateFormData);
 
     try {
       if (isEdit) {
         if (!id) return;
         const response = await employeeService.updateEmployee(
           id,
-          formattedData,
+          updateFormData,
         );
         console.log(response);
         toast.success("Employee updated successfully!");
@@ -272,7 +311,7 @@ const EmployeeForm = () => {
                   />
                 </div>
 
-                <div className="mb-4.5">
+                {/* <div className="mb-4.5">
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                     Store ID
                   </label>
@@ -284,7 +323,7 @@ const EmployeeForm = () => {
                     placeholder="Enter store ID"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
-                </div>
+                </div> */}
 
                 <div className="mb-4.5">
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">

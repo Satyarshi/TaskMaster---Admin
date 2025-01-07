@@ -31,6 +31,17 @@ interface EmployeeFormData {
   };
 }
 
+interface UpdateEmployeeData {
+  address: string;
+  dateOfBirth: string;
+  newuser: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
+}
+
 const employeeService = {
   getAllEmployees: async () => {
     const response = await api.get("/employee/crud");
@@ -47,7 +58,7 @@ const employeeService = {
     return response.data;
   },
 
-  updateEmployee: async (id: string, employeeData: EmployeeFormData) => {
+  updateEmployee: async (id: string, employeeData: UpdateEmployeeData) => {
     const response = await api.put(`/employee/crud/${id}`, employeeData);
     return response.data;
   },

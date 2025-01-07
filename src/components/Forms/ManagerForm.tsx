@@ -25,6 +25,18 @@ interface Manager {
   hireDate: string;
 }
 
+interface UpdateManagerFormData {
+  address: string;
+  dateOfBirth: string;
+  newuser: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    password: string;
+  };
+}
+
 // manager data schema for form
 interface ManagerFormData {
   user: {
@@ -73,6 +85,17 @@ const ManagerForm = () => {
       address: "",
     },
   });
+  const [updateFormData, setUpdateFormData] = useState<UpdateManagerFormData>({
+    address: "",
+    dateOfBirth: "",
+    newuser: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      password: "",
+    },
+  });
 
   useEffect(() => {
     if (id) {
@@ -87,6 +110,17 @@ const ManagerForm = () => {
     try {
       setLoading(true);
       const data: Manager = await managerService.getManager(id);
+      setUpdateFormData({
+        address: data.address,
+        dateOfBirth: data.dateOfBirth,
+        newuser: {
+          firstName: data.user.firstName,
+          lastName: data.user.lastName,
+          email: data.user.email,
+          phone: data.user.phone,
+          password: "",
+        },
+      });
       setFormData({
         user: {
           email: data.user.email,
@@ -96,7 +130,7 @@ const ManagerForm = () => {
           auth: {
             type: "password",
             data: {
-              password: "", // password is not returned in GET
+              password: "",
             },
           },
         },
@@ -136,10 +170,20 @@ const ManagerForm = () => {
       return;
     }
 
+    updateFormData.newuser.password = password;
+    updateFormData.newuser.email = formData.user.email;
+    updateFormData.newuser.phone = formData.user.phone;
+    updateFormData.newuser.firstName = formData.user.firstName;
+    updateFormData.newuser.lastName = formData.user.lastName;
+    updateFormData.address = formData.data.address;
+    updateFormData.dateOfBirth = formData.data.dateOfBirth;
+
     try {
       const formattedData = formatFormData();
       if (isEdit && id) {
-        const response = await managerService.updateManager(id, formattedData);
+        console.log(updateFormData);
+        // return;
+        const response = await managerService.updateManager(id, updateFormData);
         console.log(response);
       } else {
         const response = await managerService.createManager(formattedData);

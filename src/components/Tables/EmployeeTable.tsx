@@ -22,7 +22,7 @@ interface Employee {
   // storeId: string;
 }
 
-const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 10;
 
 const EmployeeTable = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
