@@ -29,14 +29,22 @@ const SignIn: React.FC = () => {
     const formData = new FormData(event.currentTarget);
     const username = formData.get("username");
     const password = formData.get("password");
+    const requestData = {
+      user: {
+        email: username,
+        auth: {
+          type: "password", // Can be "otp" or "ooauth" based on API requirements
+          data: {
+            password: password,
+          },
+        },
+      },
+    };
 
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/login/`,
-        {
-          username,
-          password,
-        },
+        `${process.env.NEXT_PUBLIC_API_URL}/manager/login/`,
+        requestData,
         {
           headers: {
             "Content-Type": "application/json",

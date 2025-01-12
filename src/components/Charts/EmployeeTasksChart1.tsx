@@ -82,11 +82,7 @@ const options: ApexOptions = {
       "Rachel",
     ].slice(0, 10),
     labels: {
-      style: {
-        cursor: "pointer",
-        textDecoration: "underline",
-        color: "#3C50E0",
-      },
+      
     },
   },
   legend: {
@@ -97,7 +93,6 @@ const options: ApexOptions = {
     fontSize: "14px",
 
     markers: {
-      radius: 99,
     },
   },
   fill: {
